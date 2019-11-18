@@ -28,7 +28,7 @@ void poller::add(channel &c)
 
 std::vector<epoll_event> poller::poll(/*TODO: std::time_point timeout*/)
 {
-    static constexpr int Epoll_wait_event_max = 10;
+    static const int Epoll_wait_event_max = 10;
     
     std::vector<epoll_event> ret(Epoll_wait_event_max);
     int timeout_ms = -1;
