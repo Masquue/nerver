@@ -32,8 +32,16 @@ std::vector<epoll_event> poller::poll(/*TODO: std::time_point timeout*/)
     
     std::vector<epoll_event> ret(Epoll_wait_event_max);
     int timeout_ms = -1;
-    //  TODO: EINTR
-    int num_events = LCHECK_THROW(epoll_wait(epoll_fd_, ret.data(), ret.size(), timeout_ms));
+
+    int num_events;
+repeat_wait:
+    try {
+        num_events = LCHECK_THROW(epoll_wait(epoll_fd_, ret.data(), ret.size(), timeout_ms));
+    } catch (sys_error const &e) {
+        if (e.error_code() == EINTR)
+            goto repeat_wait;
+        throw;
+    }
     ret.resize(num_events);
 
     return ret;
