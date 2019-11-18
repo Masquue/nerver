@@ -15,11 +15,10 @@ public:
     event_loop &operator=(event_loop const &) = delete;
 
     void loop();
-
-public:
-    poller poller_;
+    poller &get_poller();
 
 private:
+    poller poller_;
     bool looping_;
 };
 

@@ -21,4 +21,9 @@ void event_loop::loop()
     }
 }
 
+poller &event_loop::get_poller()
+{
+    return poller_;
+}
+
 }   // namespace nerver

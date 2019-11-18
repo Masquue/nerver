@@ -28,7 +28,7 @@ int main()
     timer_fd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK);
     channel c(timer_fd, EPOLLIN, timeout);
     event_loop loop;
-    loop.poller_.add(c);
+    loop.get_poller().add(c);
 
     //  set timer
     itimerspec it;
