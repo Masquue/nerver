@@ -10,6 +10,8 @@ event_loop::event_loop()
 
 void event_loop::loop()
 {
+    looping_ = true;
+
     while (true) {
         auto events = poller_.poll();
         for (auto const &e : events) {
