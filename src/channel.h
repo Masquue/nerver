@@ -8,8 +8,8 @@ namespace nerver {
 
 class channel {
 public:
-    using callback = std::function<void(uint32_t)>;
     using event_t = std::uint32_t;
+    using callback = std::function<void(event_t)>;
 
     channel(int fd, event_t events, callback cb);
     ~channel() = default;
