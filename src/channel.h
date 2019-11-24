@@ -9,9 +9,9 @@ namespace nerver {
 class channel {
 public:
     using event_t = std::uint32_t;
-    using callback = std::function<void(event_t)>;
+    using callback = std::function<void()>;
 
-    channel(int fd, event_t events, callback cb);
+    explicit channel(int fd);
     ~channel() = default;
 
     //  channel is noncopyable
@@ -21,12 +21,21 @@ public:
     int fd() const;
     event_t interested_events() const;
 
-    void handle_event(event_t events) const;
+    void set_read(bool value = true);
+    void set_write(bool value = true);
+    void set_read_callback(callback cb);
+    void set_write_callback(callback cb);
+
+    void handle_event(event_t events);
 
 private:
+    static const event_t Read_event;
+    static const event_t Write_event;
+private:
     const int fd_;
-    const event_t interested_events_;
-    const callback event_handler_cb_;
+    event_t interested_events_;
+    callback read_cb_;
+    callback write_cb_;
 };
 
 }   // namespace nerver
