@@ -35,7 +35,6 @@ std::pair<int, inet_addr> Socket::accept()
     int conn_fd = LCHECK_THROW(::accept(fd_, p_sa, &addrlen));
 
     return std::make_pair(conn_fd, inet_addr(p_sa, addrlen));
-    
 }
 
 int Socket::fd() const
@@ -50,6 +49,11 @@ void Socket::set_option(int optname, bool value)
     int optval = (value ? 1 : 0);
     socklen_t optlen = sizeof(optval);
     LCHECK_PRINT(setsockopt(fd_, SOL_SOCKET, optname, &optval, optlen));
+}
+
+int Socket::nonblock_listening_socket(int family)
+{
+    return LCHECK_THROW(socket(family, SOCK_STREAM | SOCK_NONBLOCK, 0));
 }
 
 }   // namespace nerver

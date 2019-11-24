@@ -7,6 +7,7 @@
 
 namespace nerver {
 
+//  wrapper for a tcp socket (internet domain, stream socket)
 class Socket {
 public:
     Socket(int fd);
@@ -25,6 +26,9 @@ public:
     //  optname should be among SO_KEEPALIVE, SO_REUSEADDR,
     //      SO_REUSEPORT, TCP_NODELAY
     void set_option(int optname, bool value);
+
+public:
+    static int nonblock_listening_socket(int family);
 
 private:
     int fd_;
