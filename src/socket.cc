@@ -13,7 +13,14 @@ Socket::Socket(int fd)
 
 Socket::~Socket()
 {
-    LCHECK_PRINT(close(fd_));
+    if (fd_ != -1)
+        LCHECK_PRINT(close(fd_));
+}
+
+Socket::Socket(Socket &&other)
+    : fd_(other.fd_)
+{
+    other.fd_ = -1;
 }
 
 void Socket::bind(inet_addr const &addr)
@@ -51,9 +58,9 @@ void Socket::set_option(int optname, bool value)
     LCHECK_PRINT(setsockopt(fd_, SOL_SOCKET, optname, &optval, optlen));
 }
 
-int Socket::nonblock_listening_socket(int family)
+Socket Socket::nonblock_listening_socket(int family)
 {
-    return LCHECK_THROW(socket(family, SOCK_STREAM | SOCK_NONBLOCK, 0));
+    return Socket(LCHECK_THROW(socket(family, SOCK_STREAM | SOCK_NONBLOCK, 0)));
 }
 
 }   // namespace nerver

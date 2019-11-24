@@ -10,12 +10,14 @@ namespace nerver {
 //  wrapper for a tcp socket (internet domain, stream socket)
 class Socket {
 public:
-    Socket(int fd);
+    explicit Socket(int fd);
     ~Socket();
 
     //  Socket is noncopyable
     Socket(Socket const &) = delete;
     Socket &operator=(Socket const &) = delete;
+
+    Socket(Socket &&other);
 
     void bind(inet_addr const &addr);
     void listen(int backlog = SOMAXCONN);
@@ -28,7 +30,7 @@ public:
     void set_option(int optname, bool value);
 
 public:
-    static int nonblock_listening_socket(int family);
+    static Socket nonblock_listening_socket(int family);
 
 private:
     int fd_;
