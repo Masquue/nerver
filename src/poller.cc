@@ -21,8 +21,12 @@ void poller::add(channel &c)
     epoll_event event;
     event.events = c.interested_events();
     event.data.ptr = &c;
-    // TODO: c.fd() already in epoll_fd_ interest list
-    LCHECK_THROW(epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, c.fd(), &event));
+
+    if (monitored_fds_.find(c.fd()) == monitored_fds_.end())
+        //  c not exist in epoll_fd_ interest list
+        LCHECK_THROW(epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, c.fd(), &event));
+    else
+        LCHECK_THROW(epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, c.fd(), &event));
     monitored_fds_[c.fd()] = event;
 }
 
