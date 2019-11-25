@@ -20,6 +20,7 @@ public:
     poller &operator=(poller const &) = delete;
 
     void add(channel &c);
+    void remove(channel &c);
     std::vector<epoll_event> poll(/*TODO: std::time_point timeout*/);
 
 private:
