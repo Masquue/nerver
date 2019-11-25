@@ -13,7 +13,7 @@ using namespace nerver;
 
 int timer_fd;
 
-void timeout(channel::event_t e)
+void timeout()
 {
     static int num = 0;
 
@@ -25,10 +25,12 @@ void timeout(channel::event_t e)
 
 int main()
 {
-    timer_fd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK);
-    channel c(timer_fd, EPOLLIN, timeout);
     event_loop loop;
-    loop.get_poller().add(c);
+
+    timer_fd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK);
+    channel c(loop.get_poller(), timer_fd);
+    c.set_read_callback(timeout);
+    c.set_read();
 
     //  set timer
     itimerspec it;
