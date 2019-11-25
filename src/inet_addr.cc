@@ -55,7 +55,7 @@ std::string inet_addr::to_string(bool numeric_host, bool numeric_serv) const
     GAICHECK_THROW(getnameinfo(reinterpret_cast<sockaddr const *>(&ss_), addrlen_,
                                host, NI_MAXHOST, serv, NI_MAXSERV, flags));
 
-    return std::string(host) + serv;
+    return std::string(host) + ":" + serv;
 }
 
 std::pair<sockaddr const *, socklen_t const *> inet_addr::get_raw() const
