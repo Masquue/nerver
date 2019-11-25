@@ -21,7 +21,7 @@ public:
 
     void bind(inet_addr const &addr);
     void listen(int backlog = SOMAXCONN);
-    std::pair<int, inet_addr> accept();
+    std::pair<Socket, inet_addr> accept();
 
     int fd() const;
 

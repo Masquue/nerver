@@ -34,14 +34,14 @@ void Socket::listen(int backlog)
     LCHECK_THROW(::listen(fd_, backlog));
 }
 
-std::pair<int, inet_addr> Socket::accept()
+std::pair<Socket, inet_addr> Socket::accept()
 {
     sockaddr_storage ss;
     auto p_sa = reinterpret_cast<sockaddr *>(&ss);
     socklen_t addrlen = sizeof(ss);
     int conn_fd = LCHECK_THROW(::accept(fd_, p_sa, &addrlen));
 
-    return std::make_pair(conn_fd, inet_addr(p_sa, addrlen));
+    return std::make_pair(Socket(conn_fd), inet_addr(p_sa, addrlen));
 }
 
 int Socket::fd() const
