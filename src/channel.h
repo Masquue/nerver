@@ -6,13 +6,15 @@
 
 namespace nerver {
 
+class poller;
+
 class channel {
 public:
     using event_t = std::uint32_t;
     using callback = std::function<void()>;
 
-    explicit channel(int fd);
-    ~channel() = default;
+    channel(poller &p, int fd);
+    ~channel();
 
     //  channel is noncopyable
     channel(channel const &) = delete;
@@ -27,12 +29,17 @@ public:
     void set_write_callback(callback cb);
 
     void handle_event(event_t events);
+private:
+    void add_this_to_poller();
+    void remove_this_from_poller();
 
 private:
     static const event_t Read_event;
     static const event_t Write_event;
 private:
     const int fd_;
+    poller &poller_;
+    bool added_to_poller_;
     event_t interested_events_;
     callback read_cb_;
     callback write_cb_;

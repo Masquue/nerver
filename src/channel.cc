@@ -1,16 +1,24 @@
 #include <sys/epoll.h>
 
 #include "channel.h"
+#include "poller.h"
 
 namespace nerver {
 
 const channel::event_t channel::Read_event = EPOLLIN | EPOLLPRI;
 const channel::event_t channel::Write_event =  EPOLLOUT;
 
-channel::channel(int fd)
-    :   fd_(fd), interested_events_(0)
+channel::channel(poller &p, int fd)
+    :   fd_(fd), poller_(p),
+        added_to_poller_(false),
+        interested_events_(0)
 {
     //  nothing
+}
+
+channel::~channel()
+{
+    remove_this_from_poller();
 }
 
 int channel::fd() const
@@ -29,6 +37,7 @@ void channel::set_read(bool value)
         interested_events_ |= Read_event;
     else
         interested_events_ &= ~Read_event;
+    add_this_to_poller();
 }
 
 void channel::set_write(bool value)
@@ -37,6 +46,7 @@ void channel::set_write(bool value)
         interested_events_ |= Write_event;
     else
         interested_events_ &= ~Write_event;
+    add_this_to_poller();
 }
 
 void channel::set_read_callback(callback cb)
@@ -58,6 +68,18 @@ void channel::handle_event(event_t event)
         if (write_cb_)
             write_cb_();
     }
+}
+
+void channel::add_this_to_poller()
+{
+    poller_.add(*this);
+    added_to_poller_ = true;
+}
+
+void channel::remove_this_from_poller()
+{
+    if (added_to_poller_)
+        poller_.remove(*this);
 }
 
 }   // namespace nerver
