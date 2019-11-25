@@ -1,6 +1,7 @@
 #ifndef NERVER_INET_ADDR_H
 #define NERVER_INET_ADDR_H
 
+#include <string>
 #include <utility>
 
 #include <sys/socket.h>
@@ -14,7 +15,9 @@ public:
     inet_addr(sockaddr *addr, socklen_t addrlen);
 
     bool ipv6() const;
-    std::pair<sockaddr *, socklen_t *> get_raw();
+    int family() const;
+    std::string to_string(bool numeric_host = true, bool numeric_serv = true) const;
+
     std::pair<sockaddr const *, socklen_t const *> get_raw() const;
 private:
     bool ipv6_;
