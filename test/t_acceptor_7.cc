@@ -18,9 +18,8 @@ void on_new_connection(Socket s, inet_addr peer_addr)
 
 int main()
 {
-
     event_loop loop;
-    inet_addr addr("localhost", "9999", true, AF_INET6);
+    inet_addr addr(nullptr, "9999", true, AF_INET6);
 
     acceptor a(loop.get_poller(), addr);
     a.set_connection_callback(on_new_connection);
