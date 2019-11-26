@@ -23,7 +23,7 @@ inet_addr::inet_addr(char const *host, char const *service,
     GAICHECK_THROW(getaddrinfo(host, service, &hints, &result));
 
     // choose the first address in result list
-    std::memcpy(&ss_, &result->ai_addr, result->ai_addrlen);
+    std::memcpy(&ss_, result->ai_addr, result->ai_addrlen);
     addrlen_ = result->ai_addrlen;
     ipv6_ = (ss_.ss_family == AF_INET6);
 }
