@@ -24,6 +24,7 @@ public:
     std::pair<Socket, inet_addr> accept();
 
     int fd() const;
+    inet_addr local_addr() const;
 
     //  optname should be among SO_KEEPALIVE, SO_REUSEADDR,
     //      SO_REUSEPORT, TCP_NODELAY

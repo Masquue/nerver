@@ -50,6 +50,16 @@ int Socket::fd() const
     return fd_;
 }
 
+inet_addr Socket::local_addr() const
+{
+    sockaddr_storage ss;
+    auto p = reinterpret_cast<sockaddr *>(&ss);
+    socklen_t addr_len = sizeof(ss);
+    LCHECK_THROW(getsockname(fd_, p, &addr_len));
+
+    return inet_addr(p, addr_len);
+}
+
 //  optname should be among SO_KEEPALIVE, SO_REUSEADDR,
 //      SO_REUSEPORT, TCP_NODELAY
 void Socket::set_option(int optname, bool value)
