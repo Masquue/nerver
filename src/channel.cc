@@ -49,6 +49,12 @@ void channel::set_write(bool value)
     add_this_to_poller();
 }
 
+void channel::clear_interests()
+{
+    interested_events_ = 0;
+    add_this_to_poller();
+}
+
 void channel::set_read_callback(callback cb)
 {
     read_cb_ = cb;

@@ -27,6 +27,7 @@ public:
     void set_write(bool value = true);
     void set_read_callback(callback cb);
     void set_write_callback(callback cb);
+    void clear_interests();
 
     void handle_event(event_t events);
 private:
