@@ -7,6 +7,8 @@ namespace nerver {
 
 class event_loop {
 public:
+    using job_t = std::function<void()>;
+
     event_loop();
     ~event_loop() = default;
 
@@ -16,10 +18,12 @@ public:
 
     void loop();
     poller &get_poller();
+    void execute(job_t job);
 
 private:
     poller poller_;
     bool looping_;
+    std::vector<job_t> jobs_;
 };
 
 }   // namespace nerver

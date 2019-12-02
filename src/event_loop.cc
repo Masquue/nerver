@@ -18,12 +18,21 @@ void event_loop::loop()
             auto c = static_cast<channel *>(e.data.ptr);
             c->handle_event(e.events);
         }
+
+        for (auto const &job : jobs_)
+            job();
+        jobs_.clear();
     }
 }
 
 poller &event_loop::get_poller()
 {
     return poller_;
+}
+
+void event_loop::execute(job_t job)
+{
+    jobs_.push_back(job);
 }
 
 }   // namespace nerver
