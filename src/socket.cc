@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <fcntl.h>
 
 #include "socket.h"
 #include "exception.h"
@@ -56,6 +57,13 @@ void Socket::set_option(int optname, bool value)
     int optval = (value ? 1 : 0);
     socklen_t optlen = sizeof(optval);
     LCHECK_PRINT(setsockopt(fd_, SOL_SOCKET, optname, &optval, optlen));
+}
+
+void Socket::set_nonblock()
+{
+    int flags = fcntl(fd_, F_GETFL);
+    flags |= O_NONBLOCK;
+    LCHECK_THROW(fcntl(fd_, F_SETFL, flags));
 }
 
 Socket Socket::nonblock_listening_socket(int family)

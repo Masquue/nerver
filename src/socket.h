@@ -29,6 +29,8 @@ public:
     //      SO_REUSEPORT, TCP_NODELAY
     void set_option(int optname, bool value);
 
+    void set_nonblock();
+
 public:
     static Socket nonblock_listening_socket(int family);
 
