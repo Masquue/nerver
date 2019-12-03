@@ -9,7 +9,7 @@ all: $(static_lib) test
 $(obj_dir):
 	@mkdir $@
 
-$(obj_dir)/%.o: $(src_dir)/%.cc | $(obj_dir)
+$(obj_dir)/%.o: $(src_dir)/%.cc $(src_dir)/%.h | $(obj_dir)
 	@echo compiling $<
 	@$(CXX) -c -o $@ $< $(CXXFLAGS)
 
