@@ -33,6 +33,7 @@ void poller::add(channel &c)
 void poller::remove(channel &c)
 {
     LCHECK_THROW(epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, c.fd(), nullptr));
+    monitored_fds_.erase(c.fd());
 }
 
 std::vector<epoll_event> poller::poll(/*TODO: std::time_point timeout*/)
