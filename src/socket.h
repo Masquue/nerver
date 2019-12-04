@@ -23,6 +23,8 @@ public:
     void listen(int backlog = SOMAXCONN);
     std::pair<Socket, inet_addr> accept();
 
+    ssize_t read(void *buf, std::size_t buf_len);
+
     int fd() const;
     inet_addr local_addr() const;
 

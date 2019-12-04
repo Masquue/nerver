@@ -45,6 +45,11 @@ std::pair<Socket, inet_addr> Socket::accept()
     return std::make_pair(Socket(conn_fd), inet_addr(p_sa, addrlen));
 }
 
+ssize_t Socket::read(void *buf, std::size_t buf_len)
+{
+    return LCHECK_THROW(::read(fd_, buf, buf_len));
+}
+
 int Socket::fd() const
 {
     return fd_;
