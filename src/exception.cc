@@ -12,7 +12,7 @@ namespace nerver {
 sys_error::sys_error(int errnum, std::string const &error_msg)
     : errno_(errnum), msg_(error_msg)
 {
-
+    // nothing
 }
 
 char const *sys_error::what() const noexcept
