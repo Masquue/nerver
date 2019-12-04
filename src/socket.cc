@@ -50,6 +50,11 @@ ssize_t Socket::read(void *buf, std::size_t buf_len)
     return LCHECK_THROW(::read(fd_, buf, buf_len));
 }
 
+void Socket::shutdown()
+{
+    LCHECK_THROW(::shutdown(fd_, SHUT_WR));
+}
+
 int Socket::fd() const
 {
     return fd_;
