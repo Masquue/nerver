@@ -21,6 +21,7 @@ public:
     tcp_conn(tcp_conn const &) = delete;
     tcp_conn &operator=(tcp_conn const &) = delete;
 
+    void set_receive_buffer_size(std::size_t sz);
     void die();
 
     inet_addr peer_addr() const;
@@ -42,6 +43,10 @@ private:
     tcp_server &server_;
     tcp_conn_iter this_iter_;
     message_callback message_cb_;
+
+    std::vector<char> receive_buffer_;
+
+    static const std::size_t Default_buffer_size;
 };
 
 }   // namespace nerver {

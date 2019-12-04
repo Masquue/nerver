@@ -14,7 +14,7 @@ class tcp_server {
     friend class tcp_conn;
 
 public:
-    using message_callback = std::function<void(tcp_conn&, char[], std::size_t)>;
+    using message_callback = std::function<void(tcp_conn&, char *, std::size_t)>;
     using establish_callback = std::function<void(tcp_conn&)>;
     using close_callback = std::function<void(tcp_conn&)>;
 
@@ -27,6 +27,8 @@ public:
     void set_establish_callback(establish_callback est_cb);
     void set_message_callback(message_callback msg_cb);
     void set_close_callback(close_callback close_cb);
+    void set_receive_buffer_size(std::size_t sz);
+
     void start();
 
     std::list<tcp_conn>::size_type number_of_connections() const;
