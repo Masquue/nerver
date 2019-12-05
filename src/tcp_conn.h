@@ -9,6 +9,28 @@
 
 namespace nerver {
 
+class conn_state {
+    friend bool operator==(conn_state const &lhs, conn_state const &rhs);
+    friend bool operator!=(conn_state const &lhs, conn_state const &rhs);
+public:
+    enum state {
+        connected, peer_shutdown, local_shutdown, 
+        waiting_death, dead
+    };
+
+    conn_state(state s);
+
+    operator bool() const = delete;
+
+    std::string to_string() const;
+
+private:
+    state state_;
+};
+
+bool operator==(conn_state const &lhs, conn_state const &rhs);
+bool operator!=(conn_state const &lhs, conn_state const &rhs);
+
 class tcp_conn {
     friend class tcp_server;
 
@@ -22,8 +44,10 @@ public:
     tcp_conn &operator=(tcp_conn const &) = delete;
 
     void set_receive_buffer_size(std::size_t sz);
+    void shutdown();
     void die();
 
+    conn_state state() const;
     inet_addr peer_addr() const;
 
 private:
@@ -36,10 +60,18 @@ private:
 
     void set_message_callback(message_callback msg_cb);
 
+public:
+    static const conn_state connected;
+    static const conn_state peer_shutdown;
+    static const conn_state local_shutdown;
+    static const conn_state waiting_death;
+    static const conn_state dead;
+
 private:
     Socket socket_;
     channel channel_;
     inet_addr local_addr_, peer_addr_;
+    conn_state state_;
     tcp_server &server_;
     tcp_conn_iter this_iter_;
     message_callback message_cb_;

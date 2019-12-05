@@ -2,8 +2,49 @@
 
 #include "tcp_conn.h"
 #include "tcp_server.h"
+#include "exception.h"
 
 namespace nerver {
+
+conn_state::conn_state(state s)
+    : state_(s)
+{
+    // nothing
+}
+
+std::string conn_state::to_string() const
+{
+    switch (state_) {
+    case connected:
+        return "connected";
+    case peer_shutdown:
+        return "peer_shutdown";
+    case local_shutdown:
+        return "local_shutdown";
+    case waiting_death:
+        return "waiting_death";
+    case dead:
+        return "death";
+    default:
+        return "error";
+    }
+}
+
+bool operator==(conn_state const &lhs, conn_state const &rhs)
+{
+    return lhs.state_ == rhs.state_;
+}
+
+bool operator!=(conn_state const &lhs, conn_state const &rhs)
+{
+    return !(lhs == rhs);
+}
+
+const conn_state tcp_conn::connected        = conn_state::connected;
+const conn_state tcp_conn::peer_shutdown    = conn_state::peer_shutdown;
+const conn_state tcp_conn::local_shutdown   = conn_state::local_shutdown;
+const conn_state tcp_conn::waiting_death    = conn_state::waiting_death;
+const conn_state tcp_conn::dead             = conn_state::dead;
 
 const std::size_t tcp_conn::Default_buffer_size = 4096;
 
@@ -12,6 +53,7 @@ tcp_conn::tcp_conn(tcp_server &server, poller &p, Socket &&socket, inet_addr pee
       channel_(p, socket_.fd()),
       local_addr_(socket_.local_addr()),
       peer_addr_(peer),
+      state_(connected),
       server_(server),
       receive_buffer_(Default_buffer_size)
 {
@@ -25,12 +67,28 @@ void tcp_conn::set_receive_buffer_size(std::size_t sz)
     receive_buffer_.resize(sz);
 }
 
+void tcp_conn::shutdown()
+{
+    if (state_ == peer_shutdown) {
+        state_ = waiting_death;
+        die();
+    } else if (state_ == connected)
+        state_ = local_shutdown;
+    else
+        throw std::logic_error("invalid state transition from " + state_.to_string() +
+                               " to " + local_shutdown.to_string());
+}
+
 void tcp_conn::die()
 {
     channel_.clear_interests();
     server_.remove_connection(this_iter_);
 }
 
+conn_state tcp_conn::state() const
+{
+    return state_;
+}
 
 inet_addr tcp_conn::peer_addr() const
 {
@@ -49,7 +107,25 @@ void tcp_conn::set_message_callback(message_callback msg_cb)
 
 void tcp_conn::read_handler()
 {
-    ssize_t n = socket_.read(receive_buffer_.data(), n);
+    ssize_t n;
+    try {
+        n = socket_.read(receive_buffer_.data(), receive_buffer_.size());
+    } catch (sys_error const &e) {
+        if (e.error_code() == EAGAIN)
+            return; // ignore spurious wake up
+    }
+
+    if (n == 0) {
+        if (state_ == local_shutdown) {
+            state_ = waiting_death;
+            die();
+        } else if (state_ == connected)
+            state_ = peer_shutdown;
+        else
+            throw std::logic_error("invalid state transition from " + state_.to_string() +
+                                   " to " + peer_shutdown.to_string());
+    }
+
     if (message_cb_)
         message_cb_(*this, receive_buffer_.data(), n);
 }
