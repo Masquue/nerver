@@ -5,7 +5,8 @@ src_dir := $(proj_dir)/src
 test_dir := $(proj_dir)/test
 
 CXX := g++
-DEBUG := -g
-CXXFLAGS := -Wall -std=c++11 $(DEBUG) -I$(src_dir)
+debug_flags := -g
+warning_flags := -Wall -Werror=vla
+CXXFLAGS :=  $(warning_flags) $(debug_flags) -std=c++11 -I$(src_dir)
 
 static_lib := $(obj_dir)/libnerver.a
