@@ -24,6 +24,7 @@ public:
     std::pair<Socket, inet_addr> accept();
 
     ssize_t read(void *buf, std::size_t buf_len);
+    ssize_t write(void const *buf, std::size_t buf_len);
     void shutdown();
 
     int fd() const;
