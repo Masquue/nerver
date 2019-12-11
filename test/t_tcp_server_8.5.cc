@@ -20,7 +20,7 @@ void on_close(tcp_conn &conn)
               << " closed\n";
 }
 
-void on_message(tcp_conn &conn, char *buf, std::size_t buf_len)
+void on_message(tcp_conn &conn, char const *buf, std::size_t buf_len)
 {
 //  if (buf_len == 0)   // equivalent condition
     if (conn.state() == tcp_conn::peer_shutdown)
