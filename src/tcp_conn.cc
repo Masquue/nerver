@@ -70,10 +70,9 @@ void tcp_conn::set_receive_buffer_size(std::size_t sz)
 
 void tcp_conn::shutdown()
 {
-    if (state_ == peer_shutdown) {
-        state_ = waiting_death;
+    if (state_ == peer_shutdown)
         die();
-    } else if (state_ == connected)
+    else if (state_ == connected)
         state_ = local_shutdown;
     else
         throw std::logic_error("invalid state transition from " + state_.to_string() +
@@ -82,6 +81,7 @@ void tcp_conn::shutdown()
 
 void tcp_conn::die()
 {
+    state_ = waiting_death;
     channel_.clear_interests();
     server_.remove_connection(this_iter_);
 }
@@ -95,6 +95,10 @@ void tcp_conn::send(void const *data, std::size_t data_len)
         } catch (sys_error const &e) {
             if (e.error_code() == EAGAIN)
                 num_written = 0;
+            else if (e.error_code() == EPIPE) {
+                die();
+                return;
+            }
             else
                 throw;
         }
@@ -145,10 +149,9 @@ void tcp_conn::read_handler()
     }
 
     if (num_received == 0) {
-        if (state_ == local_shutdown) {
-            state_ = waiting_death;
+        if (state_ == local_shutdown)
             die();
-        } else if (state_ == connected)
+        else if (state_ == connected)
             state_ = peer_shutdown;
         else
             throw std::logic_error("invalid state transition from " + state_.to_string() +
@@ -167,6 +170,10 @@ void tcp_conn::write_handler()
     } catch (sys_error const &e) {
         if (e.error_code() == EAGAIN)
             return;
+        else if (e.error_code() == EPIPE) {
+            die();
+            return;
+        }
         throw;
     }
 

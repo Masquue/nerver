@@ -2,6 +2,7 @@
 
 #include "tcp_server.h"
 #include "tcp_conn.h"
+#include "util.h"
 
 #include <iostream>
 
@@ -14,6 +15,7 @@ tcp_server::tcp_server(char const *serv, int ip_version)
 {
     using namespace std::placeholders;
     acceptor_.set_connection_callback(std::bind(&tcp_server::new_connection, this, _1, _2));
+    ignore_sigpipe();
 }
 
 void tcp_server::set_establish_callback(establish_callback est_cb)
