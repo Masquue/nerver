@@ -4,6 +4,7 @@
 #include <list>
 
 #include "socket.h"
+#include "buffer.h"
 #include "channel.h"
 #include "tcp_server.h"
 
@@ -47,18 +48,10 @@ public:
     void shutdown();
     void die();
 
+    void send(void const *data, std::size_t data_len);
+
     conn_state state() const;
     inet_addr peer_addr() const;
-
-private:
-    using tcp_conn_iter = tcp_server::tcp_conn_iter;
-
-    void read_handler();
-
-    //   should be called right after construction
-    void set_iter(tcp_conn_iter iter);
-
-    void set_message_callback(message_callback msg_cb);
 
 public:
     static const conn_state connected;
@@ -66,6 +59,17 @@ public:
     static const conn_state local_shutdown;
     static const conn_state waiting_death;
     static const conn_state dead;
+
+private:
+    using tcp_conn_iter = tcp_server::tcp_conn_iter;
+
+    void read_handler();
+    void write_handler();
+
+    //   should be called right after construction
+    void set_iter(tcp_conn_iter iter);
+
+    void set_message_callback(message_callback msg_cb);
 
 private:
     Socket socket_;
@@ -77,6 +81,7 @@ private:
     message_callback message_cb_;
 
     std::vector<char> receive_buffer_;
+    buffer send_buffer_;
 
     static const std::size_t Default_buffer_size;
 };
