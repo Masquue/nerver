@@ -21,6 +21,7 @@ public:
 
     void bind(inet_addr const &addr);
     void listen(int backlog = SOMAXCONN);
+    //  used for listening/passive socket only
     std::pair<Socket, inet_addr> accept();
 
     ssize_t read(void *buf, std::size_t buf_len);

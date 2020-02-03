@@ -18,7 +18,9 @@ public:
     int family() const;
     std::string to_string(bool numeric_host = true, bool numeric_serv = true) const;
 
+//  QUESTION: why use socklen_t const * instead of socklen_t?
     std::pair<sockaddr const *, socklen_t const *> get_raw() const;
+
 private:
     bool ipv6_;
     sockaddr_storage ss_;

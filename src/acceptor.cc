@@ -16,10 +16,11 @@ acceptor::acceptor(poller &p, inet_addr const &addr)
 void acceptor::read_handler()
 {
     auto p = listen_socket_.accept();
-    if (connection_cb_)
+    if (connection_cb_) {
         connection_cb_(std::move(p.first), p.second);
-
-    assert(p.first.fd() == -1);
+        // destruction of the return socket is ok
+        assert(p.first.fd() == -1);
+    }
 }
 
 void acceptor::listen()

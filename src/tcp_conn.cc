@@ -40,15 +40,15 @@ bool operator!=(conn_state const &lhs, conn_state const &rhs)
     return !(lhs == rhs);
 }
 
-const conn_state tcp_conn::connected        = conn_state::connected;
-const conn_state tcp_conn::peer_shutdown    = conn_state::peer_shutdown;
-const conn_state tcp_conn::local_shutdown   = conn_state::local_shutdown;
-const conn_state tcp_conn::waiting_death    = conn_state::waiting_death;
-const conn_state tcp_conn::dead             = conn_state::dead;
+const conn_state tcp_conn::connected      = conn_state::connected;
+const conn_state tcp_conn::peer_shutdown  = conn_state::peer_shutdown;
+const conn_state tcp_conn::local_shutdown = conn_state::local_shutdown;
+const conn_state tcp_conn::waiting_death  = conn_state::waiting_death;
+const conn_state tcp_conn::dead           = conn_state::dead;
 
 const std::size_t tcp_conn::Default_buffer_size = 4096;
 
-tcp_conn::tcp_conn(tcp_server &server, poller &p, Socket &&socket, inet_addr peer)
+tcp_conn::tcp_conn(tcp_server &server, poller &p, Socket socket, inet_addr peer)
     : socket_(std::move(socket)),
       channel_(p, socket_.fd()),
       local_addr_(socket_.local_addr()),
@@ -96,6 +96,7 @@ void tcp_conn::send(void const *data, std::size_t data_len)
             if (e.error_code() == EAGAIN)
                 num_written = 0;
             else if (e.error_code() == EPIPE) {
+                //  peer socket closed
                 die();
                 return;
             }

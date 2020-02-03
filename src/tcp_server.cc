@@ -4,8 +4,6 @@
 #include "tcp_conn.h"
 #include "util.h"
 
-#include <iostream>
-
 namespace nerver {
 
 tcp_server::tcp_server(char const *serv, int ip_version)

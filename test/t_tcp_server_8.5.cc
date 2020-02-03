@@ -26,7 +26,7 @@ void on_message(tcp_conn &conn, char const *buf, std::size_t buf_len)
     if (conn.state() == tcp_conn::peer_shutdown)
         conn.shutdown();
     else 
-        write(STDIN_FILENO, buf, buf_len);
+        conn.send(buf, buf_len);
 }
 
 int main()

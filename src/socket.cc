@@ -1,5 +1,5 @@
-#include <unistd.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 #include "socket.h"
 #include "exception.h"
@@ -42,7 +42,7 @@ std::pair<Socket, inet_addr> Socket::accept()
     socklen_t addrlen = sizeof(ss);
     int conn_fd = LCHECK_THROW(::accept(fd_, p_sa, &addrlen));
 
-    return std::make_pair(Socket(conn_fd), inet_addr(p_sa, addrlen));
+    return { Socket(conn_fd), inet_addr(p_sa, addrlen) };
 }
 
 ssize_t Socket::read(void *buf, std::size_t buf_len)

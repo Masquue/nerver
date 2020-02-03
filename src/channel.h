@@ -30,6 +30,7 @@ public:
     void clear_interests();
 
     void handle_event(event_t events);
+
 private:
     void add_this_to_poller();
     void remove_this_from_poller();
@@ -37,6 +38,7 @@ private:
 private:
     static const event_t Read_event;
     static const event_t Write_event;
+
 private:
     const int fd_;
     poller &poller_;

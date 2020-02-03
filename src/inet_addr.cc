@@ -47,11 +47,11 @@ int inet_addr::family() const
 
 std::string inet_addr::to_string(bool numeric_host, bool numeric_serv) const
 {
-    static char host[NI_MAXHOST], serv[NI_MAXSERV];
-
+    char host[NI_MAXHOST], serv[NI_MAXSERV];
     int flags = 0;
     flags |= (numeric_host ? NI_NUMERICHOST : 0);
     flags |= (numeric_serv ? NI_NUMERICSERV : 0);
+
     GAICHECK_THROW(getnameinfo(reinterpret_cast<sockaddr const *>(&ss_), addrlen_,
                                host, NI_MAXHOST, serv, NI_MAXSERV, flags));
 
@@ -60,7 +60,7 @@ std::string inet_addr::to_string(bool numeric_host, bool numeric_serv) const
 
 std::pair<sockaddr const *, socklen_t const *> inet_addr::get_raw() const
 {
-    return std::make_pair(reinterpret_cast<sockaddr const *>(&ss_), &addrlen_);
+    return { reinterpret_cast<sockaddr const *>(&ss_), &addrlen_ };
 }
 
 }   // namespace nerver

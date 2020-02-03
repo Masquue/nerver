@@ -64,8 +64,8 @@ std::string error_msg(int errnum, char const *file, int line, strerror_func str_
 {
     std::ostringstream oss;
     oss << "errnum: " << errnum
-        << ", decription: " << str_error(errnum)
-        << "\nin file " << file 
+        << ", decription: " << str_error(errnum) << '\n'
+        << "in file " << file 
         << " at line " << line << '\n';
     return oss.str();
 }

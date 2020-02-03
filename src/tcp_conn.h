@@ -13,6 +13,7 @@ namespace nerver {
 class conn_state {
     friend bool operator==(conn_state const &lhs, conn_state const &rhs);
     friend bool operator!=(conn_state const &lhs, conn_state const &rhs);
+
 public:
     enum state {
         connected, peer_shutdown, local_shutdown, 
@@ -38,7 +39,7 @@ class tcp_conn {
 public:
     using message_callback = tcp_server::message_callback;
 
-    tcp_conn(tcp_server &server, poller &p, Socket &&socket, inet_addr peer);
+    tcp_conn(tcp_server &server, poller &p, Socket socket, inet_addr peer);
 
     //  tcp_conn is noncopyable
     tcp_conn(tcp_conn const &) = delete;
@@ -66,9 +67,8 @@ private:
     void read_handler();
     void write_handler();
 
-    //   should be called right after construction
+    //   should be called right after construction by tcp_server
     void set_iter(tcp_conn_iter iter);
-
     void set_message_callback(message_callback msg_cb);
 
 private:

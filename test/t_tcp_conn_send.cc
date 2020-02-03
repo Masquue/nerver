@@ -45,9 +45,9 @@ void on_message_sleep(tcp_conn &conn, char const *data, std::size_t len)
         return;
     }
 
-    std::string msg(data, len), msg_send(msg);
+    std::string msg(data, len), msg_send;
     for (unsigned i = 0; i < repetition_time; ++i)
-        msg_send += msg + std::to_string(i);
+        msg_send += std::to_string(i) + msg;
 
     sleep(5);
     

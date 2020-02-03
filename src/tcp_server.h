@@ -50,6 +50,8 @@ private:
 
 }   // namespace nerver {
 
+//  avoid needing to include tcp_conn.h
+//  but can not be placed at beginning due to class dependency
 #include "tcp_conn.h"
 
 #endif  // #ifndef NERVER_TCP_SERVER_H

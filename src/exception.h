@@ -12,15 +12,21 @@ public:
     sys_error(int errnum, std::string const &error_msg);
     char const *what() const noexcept override;
     int error_code() const;
+
 private:
     int errno_;
     std::string msg_;
 };
 
+//  pthread-style return status check
 int pcheck_throw(int errnum, char const *file, int line);
 int pcheck_print(int errnum, char const *file, int line);
+
+//  linux-syscall-style return status check
 int lcheck_throw(int errnum, char const *file, int line);
 int lcheck_print(int errnum, char const *file, int line);
+
+//  getaddrinfo/getnameinfo-style return status check
 int gaicheck_throw(int errnum, char const *file, int line);
 
 using strerror_func = std::function<char const *(int)>;
