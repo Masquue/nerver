@@ -32,6 +32,11 @@ void buffer::pop(size_type n)
         start_ = end_ = 0;
 }
 
+void buffer::clear()
+{
+    pop(size());
+}
+
 void const *buffer::data() const
 {
     return buf_.data() + start_;

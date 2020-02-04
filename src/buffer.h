@@ -13,6 +13,7 @@ public:
 
     void append(void const *p, size_type len);
     void pop(size_type n);
+    void clear();
 
     void const *data() const;
     //  number of readable bytes

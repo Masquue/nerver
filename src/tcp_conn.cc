@@ -82,6 +82,9 @@ void tcp_conn::shutdown()
 void tcp_conn::die()
 {
     state_ = waiting_death;
+    if (not send_buffer_.empty())
+        return;
+
     channel_.clear_interests();
     server_.remove_connection(this_iter_);
 }
@@ -97,6 +100,7 @@ void tcp_conn::send(void const *data, std::size_t data_len)
                 num_written = 0;
             else if (e.error_code() == EPIPE) {
                 //  peer socket closed
+                send_buffer_.clear();
                 die();
                 return;
             }
@@ -172,6 +176,7 @@ void tcp_conn::write_handler()
         if (e.error_code() == EAGAIN)
             return;
         else if (e.error_code() == EPIPE) {
+            send_buffer_.clear();
             die();
             return;
         }
@@ -180,8 +185,11 @@ void tcp_conn::write_handler()
 
     //  here num_written >= 0
     send_buffer_.pop(num_written);
-    if (send_buffer_.empty())
+    if (send_buffer_.empty()) {
         channel_.set_write(false);
+        if (state_ == waiting_death)
+            die();
+    }
 }
 
 }   // namespace nerver
