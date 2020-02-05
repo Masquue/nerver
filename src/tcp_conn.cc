@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <unistd.h>
 
 #include "tcp_conn.h"
@@ -23,8 +25,8 @@ std::string conn_state::to_string() const
         return "local_shutdown";
     case waiting_death:
         return "waiting_death";
-    case dead:
-        return "death";
+    case waiting_transfer:
+        return "waiting_transfer";
     default:
         return "error";
     }
@@ -40,11 +42,11 @@ bool operator!=(conn_state const &lhs, conn_state const &rhs)
     return !(lhs == rhs);
 }
 
-const conn_state tcp_conn::connected      = conn_state::connected;
-const conn_state tcp_conn::peer_shutdown  = conn_state::peer_shutdown;
-const conn_state tcp_conn::local_shutdown = conn_state::local_shutdown;
-const conn_state tcp_conn::waiting_death  = conn_state::waiting_death;
-const conn_state tcp_conn::dead           = conn_state::dead;
+const conn_state tcp_conn::connected        = conn_state::connected;
+const conn_state tcp_conn::peer_shutdown    = conn_state::peer_shutdown;
+const conn_state tcp_conn::local_shutdown   = conn_state::local_shutdown;
+const conn_state tcp_conn::waiting_death    = conn_state::waiting_death;
+const conn_state tcp_conn::waiting_transfer = conn_state::waiting_transfer;
 
 const std::size_t tcp_conn::Default_buffer_size = 4096;
 
@@ -74,16 +76,24 @@ void tcp_conn::shutdown()
         die();
     else if (state_ == connected)
         state_ = local_shutdown;
-    else
+    /*
+    else if (state_ != waiting_death)
         throw std::logic_error("invalid state transition from " + state_.to_string() +
                                " to " + local_shutdown.to_string());
+    */
 }
 
 void tcp_conn::die()
 {
-    state_ = waiting_death;
-    if (not send_buffer_.empty())
+    if (state_ == waiting_death)
         return;
+
+    if (not send_buffer_.empty()) {
+        state_ = waiting_transfer;
+        return;
+    }
+
+    state_ = waiting_death;
 
     channel_.clear_interests();
     server_.remove_connection(this_iter_);
@@ -100,6 +110,8 @@ void tcp_conn::send(void const *data, std::size_t data_len)
                 num_written = 0;
             else if (e.error_code() == EPIPE) {
                 //  peer socket closed
+                std::cerr << send_buffer_.size() << " bytes failed to send to "
+                          << peer_addr_.to_string() << '\n';
                 send_buffer_.clear();
                 die();
                 return;
@@ -158,9 +170,11 @@ void tcp_conn::read_handler()
             die();
         else if (state_ == connected)
             state_ = peer_shutdown;
-        else
+        /*
+        else if (state_ != waiting_death)
             throw std::logic_error("invalid state transition from " + state_.to_string() +
                                    " to " + peer_shutdown.to_string());
+        */
     }
 
     if (message_cb_)
@@ -176,6 +190,8 @@ void tcp_conn::write_handler()
         if (e.error_code() == EAGAIN)
             return;
         else if (e.error_code() == EPIPE) {
+            std::cerr << send_buffer_.size() << " bytes failed to send to "
+                      << peer_addr_.to_string() << '\n';
             send_buffer_.clear();
             die();
             return;
@@ -187,7 +203,7 @@ void tcp_conn::write_handler()
     send_buffer_.pop(num_written);
     if (send_buffer_.empty()) {
         channel_.set_write(false);
-        if (state_ == waiting_death)
+        if (state_ == waiting_transfer)
             die();
     }
 }

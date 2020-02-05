@@ -17,7 +17,7 @@ class conn_state {
 public:
     enum state {
         connected, peer_shutdown, local_shutdown, 
-        waiting_death, dead
+        waiting_death, waiting_transfer
     };
 
     conn_state(state s);
@@ -59,7 +59,7 @@ public:
     static const conn_state peer_shutdown;
     static const conn_state local_shutdown;
     static const conn_state waiting_death;
-    static const conn_state dead;
+    static const conn_state waiting_transfer;
 
 private:
     using tcp_conn_iter = tcp_server::tcp_conn_iter;
