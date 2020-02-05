@@ -89,6 +89,7 @@ void tcp_conn::die()
         return;
 
     if (not send_buffer_.empty()) {
+        channel_.set_read(false);
         state_ = waiting_transfer;
         return;
     }
