@@ -178,7 +178,7 @@ void tcp_conn::read_handler()
         */
     }
 
-    if (message_cb_)
+    if (num_received != 0 && message_cb_)
         message_cb_(*this, receive_buffer_.data(), num_received);
 }
 
