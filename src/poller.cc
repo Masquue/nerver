@@ -47,7 +47,7 @@ std::vector<epoll_event> poller::poll(/*TODO: std::time_point timeout*/)
     static const int Epoll_wait_event_max = 10;
     
     std::vector<epoll_event> ret(Epoll_wait_event_max);
-    int timeout_ms = -1;
+    int timeout_ms = 0;
 
     int num_events;
 repeat_wait:

@@ -5,6 +5,7 @@
 
 #include "acceptor.h"
 #include "event_loop.h"
+#include "event_loop_threaded.h"
 
 namespace nerver {
 
@@ -40,12 +41,15 @@ private:
     void new_connection(Socket socket, inet_addr peer_addr);
 
 private:
-    event_loop loop_;
+    event_loop loop_;   // loop for acceptor
+    event_loop_threaded conn_loops_;    // loops for tcp_conn
     acceptor acceptor_;
     std::list<tcp_conn> conn_list_;
     establish_callback establish_cb_;
     message_callback message_cb_;
     close_callback close_cb_;
+
+    static const std::size_t Default_num_of_threads = 3;
 };
 
 }   // namespace nerver {

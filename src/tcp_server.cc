@@ -7,7 +7,8 @@
 namespace nerver {
 
 tcp_server::tcp_server(char const *serv, int ip_version)
-    : acceptor_(loop_.get_poller(),
+    : conn_loops_(Default_num_of_threads),
+      acceptor_(loop_.get_poller(),
                 inet_addr(nullptr, serv, true,
                           (ip_version == 6) ? AF_INET6 : AF_INET))
 {
@@ -34,6 +35,7 @@ void tcp_server::set_close_callback(close_callback close_cb)
 void tcp_server::start()
 {
     acceptor_.listen();
+    conn_loops_.loop();
     loop_.loop();
 }
 
@@ -44,7 +46,7 @@ std::list<tcp_conn>::size_type tcp_server::number_of_connections() const
 
 void tcp_server::new_connection(Socket socket, inet_addr peer_addr)
 {
-    conn_list_.emplace_front(*this, loop_.get_poller(), std::move(socket), peer_addr);
+    conn_list_.emplace_front(*this, conn_loops_.get_poller(), std::move(socket), peer_addr);
     auto &new_conn = conn_list_.front();
     new_conn.set_iter(conn_list_.begin());
     new_conn.set_message_callback(message_cb_);
@@ -59,7 +61,7 @@ void tcp_server::remove_connection(tcp_conn_iter iter)
         close_cb_(*iter);
 
     auto erase_f = [=] { this->conn_list_.erase(iter); };
-    loop_.execute(erase_f);
+    conn_loops_.execute(erase_f);
 }
 
 }   // namespace server {
