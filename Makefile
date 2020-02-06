@@ -7,7 +7,10 @@ build_dir = $(proj_dir)/build
 CXX = g++
 debug_flags = -g
 warning_flags = -Wall -Werror=vla
-CXXFLAGS = $(warning_flags) $(debug_flags) -std=c++11 -I$(src_dir)
+cpp_version = -std=c++11
+thread_flag = -pthread
+CXXFLAGS = $(warning_flags) $(debug_flags) $(cpp_version) \
+	   $(thread_flag) -I$(src_dir)
 
 srcs_tmp = $(wildcard $(src_dir)/*.cc)
 srcs = $(filter-out $(src_dir)/main.cc, $(srcs_tmp))
