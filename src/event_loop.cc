@@ -18,10 +18,15 @@ void event_loop::loop()
             auto c = static_cast<channel *>(e.data.ptr);
             c->handle_event(e.events);
         }
+        
+        std::vector<job_t> tmp;
+        {
+            std::lock_guard<std::mutex> guard(job_mutex_);
+            tmp.swap(jobs_);
+        }
 
-        for (auto const &job : jobs_)
+        for (auto const &job : tmp)
             job();
-        jobs_.clear();
     }
 }
 
@@ -32,6 +37,7 @@ poller &event_loop::get_poller()
 
 void event_loop::execute(job_t job)
 {
+    std::lock_guard<std::mutex> guard(job_mutex_);
     jobs_.push_back(job);
 }
 

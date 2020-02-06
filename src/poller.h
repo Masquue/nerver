@@ -2,6 +2,7 @@
 #define NERVER_POLLER_H
 
 #include <map>
+#include <mutex>
 #include <vector>
 
 #include <sys/epoll.h>
@@ -25,6 +26,7 @@ public:
 
 private:
     int epoll_fd_;
+    std::mutex mutex_;
     std::map<int, epoll_event> monitored_fds_;
 };
 

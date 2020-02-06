@@ -22,16 +22,22 @@ void poller::add(channel &c)
     event.events = c.interested_events();
     event.data.ptr = &c;
 
-    if (monitored_fds_.find(c.fd()) == monitored_fds_.end())
-        //  c not exist in epoll_fd_ interest list
-        LCHECK_THROW(epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, c.fd(), &event));
-    else
-        LCHECK_THROW(epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, c.fd(), &event));
-    monitored_fds_[c.fd()] = event;
+    {
+        std::lock_guard<std::mutex> guard(mutex_);
+
+        if (monitored_fds_.find(c.fd()) == monitored_fds_.end())
+            //  c not exist in epoll_fd_ interest list
+            LCHECK_THROW(epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, c.fd(), &event));
+        else
+            LCHECK_THROW(epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, c.fd(), &event));
+        monitored_fds_[c.fd()] = event;
+    }
 }
 
 void poller::remove(channel &c)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
+
     LCHECK_THROW(epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, c.fd(), nullptr));
     monitored_fds_.erase(c.fd());
 }
@@ -46,6 +52,7 @@ std::vector<epoll_event> poller::poll(/*TODO: std::time_point timeout*/)
     int num_events;
 repeat_wait:
     try {
+        std::lock_guard<std::mutex> guard(mutex_);
         num_events = LCHECK_THROW(epoll_wait(epoll_fd_, ret.data(), ret.size(), timeout_ms));
     } catch (sys_error const &e) {
         if (e.error_code() == EINTR)

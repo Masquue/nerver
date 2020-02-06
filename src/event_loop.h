@@ -1,6 +1,7 @@
 #ifndef NERVER_EVENT_LOOP_H
 #define NERVER_EVENT_LOOP_H
 
+#include <mutex> 
 #include "poller.h"
 
 namespace nerver {
@@ -23,6 +24,7 @@ public:
 private:
     poller poller_;
     bool looping_;
+    std::mutex job_mutex_;
     std::vector<job_t> jobs_;
 };
 
